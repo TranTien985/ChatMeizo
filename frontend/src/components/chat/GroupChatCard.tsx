@@ -2,7 +2,8 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useChatStore } from "@/stores/useChatStore";
 import type { Conversation } from "@/types/chat";
 import ChatCard from "./ChatCard";
-import { cn } from "@/lib/utils";
+import UnreadCountBadge from "./UnreadCountBadge";
+import GroupChatAvatar from "./GroupChatAvatar";
 
 const GroupChatCard = ({ convo }: { convo: Conversation }) => {
   const { user } = useAuthStore(); // lay thong tin nguoi dung
@@ -11,9 +12,8 @@ const GroupChatCard = ({ convo }: { convo: Conversation }) => {
 
   if (!user) return null;
 
-  const unreadCount = convo.unreadCounts[user._id]; // dếm số tin nhắn chưa đọc của user
+  const unreadCount = convo.unreadCounts?.[user._id] ?? 0; // dếm số tin nhắn chưa đọc của user
   const name = convo.group?.name ?? "";
-  const lastMessage = convo.lastMessage?.content ?? ""; // lưu tin nhắn mới nhất
 
   // hàm xử lí khi người dùng click vào 1 conversation
   const handleSelectConversation = async (id: string) => {
@@ -37,9 +37,8 @@ const GroupChatCard = ({ convo }: { convo: Conversation }) => {
       unreadCount={unreadCount}
       leftSection={
         <>
-          {/* {todoo : user avatar} */}
-          {/* {todoo : status badge} */}
-          {/* {todoo : unread count} */}
+          {unreadCount > 0 && <UnreadCountBadge unreadCount={unreadCount} />}
+          <GroupChatAvatar participants={convo.participants} type="chat" />
         </>
       }
       subtitle={

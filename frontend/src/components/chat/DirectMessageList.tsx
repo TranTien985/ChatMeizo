@@ -13,6 +13,7 @@ const DirectMessageList = () => {
         directConversations.map((convo) => (
           <DirectMessageCard 
             convo={convo}
+            key = {convo._id}
           />
         ))
       }
