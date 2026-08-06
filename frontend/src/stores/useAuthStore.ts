@@ -58,7 +58,7 @@ export const useAuthStore = create<AuthState>()(
           await get().fetchMe(); // sau khi đăng nhập xong app sẽ lấy thông tin người dùng và lưu vào store
           useChatStore.getState().fetchConversations();
 
-          toast.success("Chào mừng bạn quay lại với Moji 🎉");
+          toast.success("Chào mừng bạn quay lại với Meizo 🎉");
         } catch (error) {
           console.error(error);
           toast.error("Đăng nhập không thành công!");
