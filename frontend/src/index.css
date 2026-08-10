@@ -110,6 +110,12 @@
     --sidebar-border: 220 20% 90%;
     --sidebar-ring: 260 100% 65%;
 
+    /* Scrollbar */
+    .beautiful-scrollbar {
+      @apply scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent
+      dark:scrollbar-thumb-slate-600;
+    }
+
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -187,7 +193,7 @@
   }
 
   body {
-    @apply text-slate-800 dark:text-slate-200;
+    @apply text-slate-800 dark:text-slate-200 bg-background;
   }
 }
 

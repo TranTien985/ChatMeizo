@@ -40,9 +40,9 @@ export interface ChatState {
   activeConversationId: string | null;
   convoLoading: boolean;
   messageLoading: boolean;
-  loading: boolean;
   reset: () => void;
 
   setActiveConversation: (id: string | null) => void;
   fetchConversations: () => Promise<void>;
+  fetchMessages: (ConversationId? : string) => Promise<void>;
 }
