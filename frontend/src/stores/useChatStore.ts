@@ -39,13 +39,14 @@ export const useChatStore = create<ChatState>()(
         const { activeConversationId, messages } = get();
         const { user } = useAuthStore.getState();
 
-        const convoId = ConversationId ?? activeConversationId; 
+        const convoId = ConversationId ?? activeConversationId;
 
         if (!convoId) return;
         const current = messages?.[convoId]; // lấy dữ liệu tin nhắn hiện tại
-        const nextCursor = current?.nextCursor === undefined ? "" : current?.nextCursor; // lấy cursor tiếp theo 
+        const nextCursor =
+          current?.nextCursor === undefined ? "" : current?.nextCursor; // lấy cursor tiếp theo
 
-        if (nextCursor === null) return; // nếu hết dữ liệu thì sẽ dừng 
+        if (nextCursor === null) return; // nếu hết dữ liệu thì sẽ dừng
 
         // lấy tin nhắn mới, bật loading
         set({ messageLoading: true });
@@ -56,33 +57,64 @@ export const useChatStore = create<ChatState>()(
             nextCursor,
           );
 
-          // phân biệt là tin nhắn gửi đi của user này hay không 
+          // phân biệt là tin nhắn gửi đi của user này hay không
           const processed = fetched.map((m) => ({
             ...m,
-            isOwn : m.senderId === user?._id
+            isOwn: m.senderId === user?._id,
           }));
 
           // cập nhật store
           set((state) => {
             const prev = state.messages[convoId]?.items ?? [];
-            const merged = prev.length > 0 ? [...processed, ...prev] : processed;
-            // đây là ghép dữ liệu từ những tin nhắn cũ hơn ghép với tin nhắn mới khi phân trang 
+            const merged =
+              prev.length > 0 ? [...processed, ...prev] : processed;
+            // đây là ghép dữ liệu từ những tin nhắn cũ hơn ghép với tin nhắn mới khi phân trang
 
             return {
               messages: {
                 ...state.messages,
-                [convoId] : {
-                  items : merged,
-                  hasMore : !!cursor,
-                  nextCursor : cursor ?? null,
+                [convoId]: {
+                  items: merged,
+                  hasMore: !!cursor,
+                  nextCursor: cursor ?? null,
                 },
-              }
-            }
-          })
+              },
+            };
+          });
         } catch (error) {
           console.error("Lỗi xảy ra khi fetchMessages:", error);
         } finally {
-          set({messageLoading : false});
+          set({ messageLoading: false });
+        }
+      },
+      sendDirectMessage: async (recipientId, content, imgUrl) => {
+        try {
+          const { activeConversationId } = get();
+          await chatService.sendDirectMessage(
+            recipientId,
+            content,
+            imgUrl,
+            activeConversationId || undefined,
+          );
+          set((state) => ({
+            conversations: state.conversations.map((c) =>
+              c._id === activeConversationId ? { ...c, seenBy: [] } : c,
+            ),
+          }));
+        } catch (error) {
+          console.error("Lỗi xảy ra khi gửi direct message", error);
+        }
+      },
+      sendGroupMessage: async (conversationId, content, imgUrl) => {
+        try {
+          await chatService.sendGroupMessage(conversationId, content, imgUrl);
+          set((state) => ({
+            conversations: state.conversations.map((c) =>
+              c._id === get().activeConversationId ? { ...c, seenBy: [] } : c,
+            ),
+          }));
+        } catch (error) {
+          console.error("Lỗi xảy ra gửi group message", error);
         }
       },
     }),
