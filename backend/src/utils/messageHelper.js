@@ -1,4 +1,4 @@
-export const updateConverstationAfterCreateMessage = (
+export const updateConversationAfterCreateMessage = (
   conversation,
   message,
   senderId,
@@ -6,7 +6,8 @@ export const updateConverstationAfterCreateMessage = (
   conversation.set({
     seenBy: [], // khi có tin nhắn mới thì trạng thái sẽ là chưa xem
     lastMessageAt: message.createdAt, // gán thời gian tin nhắn cuối thành tin nhắn vừa tạo
-    lastMessage: { // lưu cache tin nhắn cuối sẽ có các trường tương ứng
+    lastMessage: {
+      // lưu cache tin nhắn cuối sẽ có các trường tương ứng
       _id: message._id,
       content: message.content,
       senderId,
@@ -23,4 +24,16 @@ export const updateConverstationAfterCreateMessage = (
     // nếu isSender = true: là người gửi thì gán = 0
     // nếu isSender = false: gán prevCount + 1
   });
+};
+
+export const emitNewMessage = (io, conversation, message) => {
+  io.to(conversation._id.toString()).emit("new-message", {
+    message,
+    conversation: {
+      _id: conversation._id,
+      lastMessage: conversation.lastMessage,
+      lastMessageAt: conversation.lastMessageAt,
+    },
+    unreadCounts: conversation.unreadCounts,
+  }); // gửi sự kiện newMessage đến tất cả các client trong phòng chat
 };

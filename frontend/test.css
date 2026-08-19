@@ -122,9 +122,8 @@
   }
 
   .dark {
-    /* Dark mode - neon on dark aesthetic */
     --background: 230 25% 10%;
-    --foreground: 210 40% 96%; /* slate-200 */
+    --foreground: 210 40% 96%;
 
     --card: 230 20% 12%;
     --card-foreground: 210 40% 96%;
@@ -134,36 +133,27 @@
 
     --primary: 260 100% 70%;
     --primary-glow: 320 100% 75%;
-    --primary-foreground: 240 15% 8%;
 
-    --secondary: 270 20% 20%;
-    --secondary-foreground: 280 100% 80%;
+    --secondary: 260 30% 20%;
+    --secondary-foreground: 260 100% 80%;
 
-    --muted: 240 15% 15%;
-    --muted-foreground: 240 15% 70%;
+    --muted: 230 20% 15%;
+    --muted-foreground: 230 10% 70%;
 
-    --accent: 180 100% 60%;
-    --accent-foreground: 240 15% 8%;
+    --accent: 180 80% 60%;
+    --accent-foreground: 0 0% 100%;
 
-    /* Chat bubbles in dark mode */
-    --chat-bubble-sent: 280 100% 65%;
-    --chat-bubble-sent-foreground: 0 0% 100%;
-    --chat-bubble-received: 240 15% 18%;
-    --chat-bubble-received-foreground: 250 100% 90%;
+    --chat-bubble-sent: 270 100% 65%;
+    --chat-bubble-received: 230 20% 15%;
+    --chat-bubble-received-foreground: 210 40% 90%;
 
-    /* Status colors */
     --online: 140 100% 60%;
-    --away: 45 100% 65%;
     --offline: 0 0% 50%;
 
-    --destructive: 0 80% 47%;
-    --destructive-foreground: 0 0% 100%;
+    --border: 230 20% 25%;
+    --input: 230 20% 18%;
+    --ring: 260 100% 70%;
 
-    --border: 281 15% 25%;
-    --input: 240 15% 18%;
-    --ring: 280 100% 70%;
-
-    /* Dark mode gradients */
     --gradient-primary: linear-gradient(
       135deg,
       hsl(260, 100%, 70%),
@@ -188,7 +178,6 @@
       hsla(260, 100%, 65%, 0.3) 100%
     );
 
-    /* Dark shadows with glow */
     --shadow-soft: 0 8px 32px -8px hsl(260 100% 70% / 0.25);
     --shadow-glow: 0 0 40px hsl(260 100% 70% / 0.4);
     --shadow-bubble: 0 4px 20px -4px hsl(260 100% 65% / 0.3);
@@ -204,11 +193,11 @@
   }
 
   body {
-    @apply text-slate-800 dark:text-slate-200 bg-background;
+    @apply bg-background text-foreground;
   }
 }
 
-/* Chat App Utility Classes */
+/* ===== COMPONENTS (GIỮ NGUYÊN) ===== */
 @layer components {
   .glass {
     @apply bg-gradient-to-br from-violet-200/10 to-pink-100/5 border-violet-300/30;
@@ -222,7 +211,6 @@
     @apply backdrop-blur-2xl bg-gradient-to-br from-card/90 to-card/60 border border-border/70;
   }
 
-  /* Chat bubble variants */
   .chat-bubble-sent {
     @apply bg-primary/80! text-[hsl(var(--chat-bubble-sent-foreground))]! shadow-[var(--shadow-bubble)];
   }
@@ -231,15 +219,6 @@
     @apply bg-[hsl(var(--chat-bubble-received))] text-[hsl(var(--chat-bubble-received-foreground))] border border-border/50;
   }
 
-  .error-message {
-    @apply text-sm text-destructive;
-  }
-
-  .success-message {
-    @apply text-sm text-emerald-500;
-  }
-
-  /* Status indicators */
   .status-online {
     @apply bg-[hsl(var(--online))] shadow-[0_0_8px_hsl(var(--online)/0.5)];
   }
@@ -248,7 +227,6 @@
     @apply bg-[hsl(var(--offline))];
   }
 
-  /* Gradient backgrounds */
   .bg-gradient-primary {
     background: var(--gradient-primary);
   }
@@ -269,7 +247,6 @@
     background: var(--gradient-purple);
   }
 
-  /* Shadows */
   .shadow-soft {
     box-shadow: var(--shadow-soft);
   }
@@ -282,12 +259,6 @@
     box-shadow: var(--shadow-bubble);
   }
 
-  /* Scrollbar */
-  .beautiful-scrollbar {
-    @apply scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent dark:scrollbar-thumb-slate-600;
-  }
-
-  /* Animations */
   .transition-bounce {
     transition: var(--transition-bounce);
   }
@@ -296,7 +267,6 @@
     transition: var(--transition-smooth);
   }
 
-  /* Pulse ring for unread messages */
   .pulse-ring {
     @apply relative;
   }
@@ -306,7 +276,6 @@
     @apply absolute inset-0 rounded-full bg-primary/30 animate-ping duration-[2000ms];
   }
 
-  /* Message bounce in animation */
   .message-bounce {
     animation: messageSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)
       forwards;

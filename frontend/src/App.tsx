@@ -6,13 +6,26 @@ import ChatApp from "./pages/ChatApp";
 import ProtectedRoute from "./components/auth/protectedRoute";
 import { useThemeStore } from "./stores/useThemeStore";
 import { useEffect } from "react";
+import { useAuthStore } from "./stores/useAuthStore";
+import { useSocketStore } from "./stores/useSocketStore";
 
 function App() {
   const { isDark, setTheme } = useThemeStore();
+  const { accessToken } = useAuthStore();
+  const { connectSocket, disconnectSocket } = useSocketStore();
+
   // khi đóng tab hoặc load lại trang thì sẽ lưu lại trạng thái của theme
   useEffect(() => {
     setTheme(isDark);
   }, [isDark]);
+
+  useEffect(() => {
+    if (accessToken) {
+      connectSocket();
+    }
+
+    return () => disconnectSocket(); // khi đóng tab hoặc load lại trang thì sẽ ngắt kết nối socket
+  }, [accessToken]);
 
   return (
     <>

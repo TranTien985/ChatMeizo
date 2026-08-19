@@ -6,10 +6,12 @@ import { Separator } from "@/components/ui/separator";
 import UserAvatar from "./UserAvatar";
 import StatusBadge from "./StatusBadge";
 import GroupChatAvatar from "./GroupChatAvatar";
+import { useSocketStore } from "@/stores/useSocketStore";
 
 const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
   const { conversations, activeConversationId } = useChatStore();
   const { user } = useAuthStore();
+  const {onlineUsers} = useSocketStore();
   let otherUser;
 
   // tìm đoạn chat thoả mãn
@@ -54,7 +56,7 @@ const ChatWindowHeader = ({ chat }: { chat?: Conversation }) => {
                   avatarUrl={otherUser?.avatarUrl || undefined}
                 />
                 {/* {todo: socket io} */}
-                <StatusBadge status="offline" />
+                <StatusBadge status={onlineUsers.includes(otherUser?._id || "") ? "online" : "offline"} />
               </>
             ) : (
               <GroupChatAvatar

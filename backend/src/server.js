@@ -9,10 +9,10 @@ import conversationRoute from "./routes/conversation.route.js";
 import cookieParser from "cookie-parser";
 import { protectedRoute } from "./middlewares/auth.middlewares.js";
 import cors from "cors";
+import { app, server } from "./socket/index.js";
 
 dotenv.config();
 
-const app = express();
 const PORT = process.env.PORT || 5000;
 
 // middlewares
@@ -31,7 +31,7 @@ app.use("/api/messages", messageRoute);
 app.use("/api/conversations", conversationRoute);
 
 connectDB().then(() => {
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`server bat dau tai cong ${PORT}`);
   });
 });

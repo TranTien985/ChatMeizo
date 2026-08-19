@@ -14,39 +14,42 @@ export const createConversation = async (req, res) => {
       !Array.isArray(memberIds) ||
       memberIds.length === 0
     ) {
-      return res
-        .status(400)
-        .json({ message: "Tên nhóm và danh sách thành viên là bắt buộc " });
+      return res.status(400).json({
+        message: "Tên nhóm và danh sách thành viên là bắt buộc",
+      });
     }
 
     let conversation;
 
-    // nếu đây là đoạn chat giữa 2 người
+    // ================= DIRECT =================
     if (type === "direct") {
       const participantId = memberIds[0];
 
+      // Kiểm tra đã tồn tại cuộc trò chuyện chưa
       conversation = await Conversation.findOne({
         type: "direct",
-        "participants.userId": { $all: [userId, participantId] }, // phải chửa đầy đủ các giá trị trong mảng
+        "participants.userId": {
+          $all: [userId, participantId],
+        },
       });
+
+      // Nếu chưa có thì tạo mới
+      if (!conversation) {
+        conversation = new Conversation({
+          type: "direct",
+          participants: [{ userId }, { userId: participantId }],
+          lastMessageAt: new Date(),
+        });
+
+        await conversation.save();
+      }
     }
 
-    // nếu giá trị rỗng thì sẽ tạo 1 conversation mới
-    if (!conversation) {
-      conversation = new Conversation({
-        type: "direct",
-        participants: [{ userId }, { userId: participantId }],
-        lastMessageAt: new Date(),
-      });
-    }
-
-    await conversation.save();
-
-    // nếu đây là cuộc trò chuyện nhóm
-    if (type === "group") {
+    // ================= GROUP =================
+    else if (type === "group") {
       conversation = new Conversation({
         type: "group",
-        participants: [{ userId }, ...memberIds.map((id) => ({ userId: id }))], // danh sách tất cả các thành viên trong nhóm
+        participants: [{ userId }, ...memberIds.map((id) => ({ userId: id }))],
         group: {
           name,
           createdBy: userId,
@@ -57,25 +60,38 @@ export const createConversation = async (req, res) => {
       await conversation.save();
     }
 
-    if (!conversation) {
-      return res
-        .status(400)
-        .json({ message: "Conversation type không hợp lệ" });
+    // ================= TYPE KHÔNG HỢP LỆ =================
+    else {
+      return res.status(400).json({
+        message: "Conversation type không hợp lệ",
+      });
     }
 
+    // Populate dữ liệu
     await conversation.populate([
-      { path: "participants.userId", select: "displayname avatarUrl" },
+      {
+        path: "participants.userId",
+        select: "displayName avatarUrl",
+      },
       {
         path: "seenBy",
         select: "displayName avatarUrl",
       },
-      { path: "lastMessage.senderId", select: "displayName avatarUrl" },
+      {
+        path: "lastMessage.senderId",
+        select: "displayName avatarUrl",
+      },
     ]);
 
-    return res.status(201).json({ conversation });
+    return res.status(201).json({
+      conversation,
+    });
   } catch (error) {
-    console.error("Lỗi khi tạo conversation", error);
-    return res.status(500).json({ message: "Lỗi hệ thống " });
+    console.error("Lỗi khi tạo conversation:", error);
+
+    return res.status(500).json({
+      message: "Lỗi hệ thống",
+    });
   }
 };
 
@@ -111,7 +127,7 @@ export const getConversations = async (req, res) => {
 
       return {
         ...convo.toObject(), // chuyển mongoose document thành js thuần để tránh lấy cả dữ liệu thừa
-        unreadCount: convo.unreadCount || {},
+        unreadCounts: convo.unreadCount || {},
         participants,
       };
     });
@@ -156,5 +172,19 @@ export const getMessages = async (req, res) => {
   } catch (error) {
     console.error("Loi xay ra khi lay messages", error);
     return res.status(500).json({ message: "Loi he thong" });
+  }
+};
+
+export const getUserConversationForSocketIO = async (userId) => {
+  try {
+    const conversations = await Conversation.find(
+      { "participants.userId": userId },
+      { _id: 1 },
+    );
+
+    return conversations.map((c) => c._id.toString());
+  } catch (error) {
+    console.error("Lỗi khi fetch conversations: ", error);
+    return [];
   }
 };
